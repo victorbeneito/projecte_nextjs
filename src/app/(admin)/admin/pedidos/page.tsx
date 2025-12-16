@@ -1,0 +1,107 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+
+interface Pedido {
+  _id: string;
+  cliente: string;
+  total: number;
+  estado: string;
+  fecha: string;
+}
+
+export default function AdminPedidos() {
+  const [pedidos, setPedidos] = useState<Pedido[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPedidos();
+  }, []);
+
+  const fetchPedidos = async () => {
+    try {
+      const res = await fetch('/api/pedidos');
+      const data = await res.json();
+      setPedidos(data.pedidos || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F8F8F5] py-8 px-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold text-[#4A4A4A] mb-12">📋 Gestión de Pedidos</h1>
+        
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-[#6BAEC9]/10">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-[#F8F8F5]">
+                  <th className="px-8 py-4 text-left text-lg font-bold text-[#4A4A4A]">ID Pedido</th>
+                  <th className="px-8 py-4 text-left text-lg font-bold text-[#4A4A4A]">Cliente</th>
+                  <th className="px-8 py-4 text-left text-lg font-bold text-[#4A4A4A]">Total</th>
+                  <th className="px-8 py-4 text-left text-lg font-bold text-[#4A4A4A]">Estado</th>
+                  <th className="px-8 py-4 text-left text-lg font-bold text-[#4A4A4A]">Fecha</th>
+                  <th className="px-8 py-4 text-right text-lg font-bold text-[#4A4A4A]">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-8 py-12 text-center text-gray-500">
+                      Cargando pedidos...
+                    </td>
+                  </tr>
+                ) : pedidos.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-8 py-12 text-center text-gray-500">
+                      No hay pedidos aún
+                    </td>
+                  </tr>
+                ) : (
+                  pedidos.map((pedido) => (
+                    <tr key={pedido._id} className="border-t hover:bg-[#F8F8F5]">
+                      <td className="px-8 py-6 font-mono text-sm text-[#6BAEC9]">{pedido._id.slice(-8)}</td>
+                      <td className="px-8 py-6 font-semibold text-[#4A4A4A]">{pedido.cliente}</td>
+                      <td className="px-8 py-6">
+                        <span className="text-2xl font-bold text-[#F7A38B]">€{pedido.total}</span>
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                          pedido.estado === 'completado' ? 'bg-green-100 text-green-700' :
+                          pedido.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {pedido.estado}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6 text-sm text-[#6BAEC9]">{new Date(pedido.fecha).toLocaleDateString()}</td>
+                      <td className="px-8 py-6 text-right">
+                        <div className="flex gap-2 justify-end">
+                          <button className="p-2 hover:bg-[#6BAEC9]/10 rounded-xl transition-colors">
+                            <svg className="w-5 h-5 text-[#6BAEC9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                          </button>
+                          <button className="p-2 hover:bg-[#F7A38B]/10 rounded-xl transition-colors">
+                            <svg className="w-5 h-5 text-[#F7A38B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
