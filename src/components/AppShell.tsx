@@ -18,14 +18,16 @@ export default function AppShell({
   useEffect(() => {
     const cargarCategorias = async () => {
       try {
-        const { data } = await clienteAxios.get("/categorias");
+        
+        const { data } = await clienteAxios.get<any>("/categorias");
+        
         if (data.ok) setCategories(data.categorias || []);
       } catch (error) {
         console.error("Error cargando categorías:", error);
       }
     };
     cargarCategorias();
-  }, []);
+  }, []); 
 
   const handleSearch = (q: string) => setSearchQuery(q);
 
