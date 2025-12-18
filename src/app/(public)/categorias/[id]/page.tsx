@@ -21,9 +21,10 @@ export default function CategoryPage() {
       try {
         setLoading(true);
 
-        // 1) Productos por categoría ?categoria=ID
+        // 1) Productos por categoría
         const res = await clienteAxios.get(`/productos?categoria=${id}`);
-        const data = res.data;
+        const data: any = res.data; // Ya corregido
+        
         if (data.ok) {
           setProductosCategoria(data.productos || []);
         } else {
@@ -32,11 +33,18 @@ export default function CategoryPage() {
 
         // 2) Categorías para sacar el nombre de la actual
         const resCats = await clienteAxios.get("/categorias");
-        if (resCats.data?.ok) {
-          const cats = resCats.data.categorias || [];
+        
+        // --- AQUÍ ESTABA EL ERROR NUEVO ---
+        // Creamos una variable 'dataCats' de tipo any para que TS no se queje
+        const dataCats: any = resCats.data; 
+
+        if (dataCats?.ok) {
+          const cats = dataCats.categorias || [];
           const catActual = cats.find((c: any) => c._id === id);
           setCategoriaNombre(catActual?.nombre || "");
         }
+        // ----------------------------------
+
       } catch (error) {
         console.error("Error cargando datos de categoría:", error);
         setProductosCategoria([]);
