@@ -55,7 +55,7 @@ export default function CategoryProductsModal({ categories }: Props) {
       }
 
       const respuesta = await clienteAxios.get(endpoint);
-      const data = respuesta.data;
+      const data: any = respuesta.data;
 
       if (data.ok) {
         setProductos(data.productos || []);
