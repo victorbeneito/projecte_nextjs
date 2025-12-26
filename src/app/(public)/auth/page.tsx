@@ -46,15 +46,21 @@ export default function AuthPage() {
       if (!data.ok) throw new Error(data.error || 'Error en autenticación');
 
       // Guardar en contexto + localStorage
-      login(data);
+      login(data.cliente, data.token);
 
-      // Si es registro nuevo → ir a completar direcciones
-      if (esRegistro) {
-        router.push('/direcciones');
-      } else {
-        // Si solo login → ir a tienda (o donde quieras)
-        router.push('/productos');
-      }
+
+// Si es registro nuevo → primero completar dirección
+const params = new URLSearchParams(window.location.search);
+const redirectTo = params.get("redirect");
+
+if (esRegistro) {
+  // Registro normal: si venía de una compra, se respetará redirect; si no, va a home
+  router.push(redirectTo || "/");
+} else {
+  // Login: vuelve a donde venía o a /productos
+  router.push(redirectTo || "/productos");
+}
+
     } catch (err: any) {
       setError(err.message || 'Error en autenticación');
     } finally {

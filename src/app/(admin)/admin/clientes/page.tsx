@@ -1,34 +1,48 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from "next/navigation";
-
+import { useRouter } from 'next/navigation';
 
 interface Cliente {
   _id: string;
   nombre: string;
+  apellidos: string;
   email: string;
   telefono: string;
 }
 
 export default function AdminClientes() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
-  const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
-    telefono: ''
-  });
-  const [editando, setEditando] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const fetchClientes = async () => {
+  // 🔹 Cargar lista de clientes (con o sin búsqueda)
+  const fetchClientes = async (term: string = '') => {
     try {
-      const res = await fetch('/api/clientes');
+      setLoading(true);
+
+      const url = term
+        ? `/api/clientes?search=${encodeURIComponent(term)}`
+        : '/api/clientes';
+
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
+      });
+
       const data = await res.json();
-      if (data.ok) setClientes(data.clientes || []);
+      if (data.ok) {
+        setClientes(data.clientes || []);
+      } else {
+        console.error(data.error);
+        setClientes([]);
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error cargando clientes:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,140 +50,157 @@ export default function AdminClientes() {
     fetchClientes();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // 🔹 Buscar
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      const method = editando ? 'PUT' : 'POST';
-      const url = editando ? `/api/clientes/${editando}` : '/api/clientes';
-      
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+    fetchClientes(searchTerm.trim());
+  };
 
+  // 🔹 Eliminar cliente
+  const handleDelete = async (id: string) => {
+    if (!confirm('¿Eliminar este cliente?')) return;
+    try {
+      const res = await fetch(`/api/clientes/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
+      });
       if (res.ok) {
-        fetchClientes();
-        setFormData({ nombre: '', email: '', telefono: '' });
-        setEditando(null);
+        fetchClientes(searchTerm);
+      } else {
+        alert('⚠️ Error al eliminar cliente');
       }
     } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEdit = (cliente: Cliente) => {
-    setFormData({
-      nombre: cliente.nombre,
-      email: cliente.email,
-      telefono: cliente.telefono
-    });
-    setEditando(cliente._id);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm('¿Eliminar cliente?')) {
-      await fetch(`/api/clientes/${id}`, { method: 'DELETE' });
-      fetchClientes();
+      console.error('Error eliminando cliente:', error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-[#F8F8F5] py-8 px-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-900 mb-12">👥 Gestión Clientes</h1>
+        <h1 className="text-4xl font-bold text-[#4A4A4A] mb-12">
+          👥 Panel de Clientes
+        </h1>
 
-        {/* Botón volver al panel de administración */}
-<div className="mb-12">
-  <button
-    onClick={() => router.push("/admin")}
-    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-[#6BAEC9] to-[#A8D7E6] hover:from-[#5FA0B3] hover:to-[#91C8D9] shadow-md transition-all duration-300"
-  >
-    ← Volver al Panel de Administración
-  </button>
-</div>
-
-        
-        {/* FORMULARIO */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 mb-12">
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <input
-              name="nombre"
-              value={formData.nombre}
-              onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-              placeholder="Nombre completo"
-              className="p-4 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200"
-              required
-            />
-            <input
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              placeholder="email@ejemplo.com"
-              className="p-4 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200"
-              required
-            />
-            <input
-              name="telefono"
-              value={formData.telefono}
-              onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-              placeholder="Teléfono"
-              className="p-4 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="md:col-span-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-8 rounded-xl font-semibold hover:from-blue-600"
-            >
-              {loading ? '⏳ Guardando...' : (editando ? '✏️ Actualizar' : '➕ Nuevo Cliente')}
-            </button>
-          </form>
+        {/* Botón volver al panel admin */}
+        <div className="mb-8">
+          <button
+            onClick={() => router.push('/admin')}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-[#6BAEC9] to-[#A8D7E6] hover:from-[#5FA0B3] hover:to-[#91C8D9] shadow-md transition-all duration-300"
+          >
+            ← Volver al Panel de Administración
+          </button>
         </div>
 
-        {/* LISTA */}
+        {/* 🔍 Cuadro de búsqueda rápida */}
+        <form
+          onSubmit={handleSearch}
+          className="flex flex-wrap items-center gap-4 mb-10"
+        >
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar cliente por nombre o email..."
+            className="flex-1 min-w-[250px] p-4 border border-gray-300 rounded-xl focus:ring-4 focus:ring-[#A8D7E6]"
+          />
+          <button
+            type="submit"
+            className="bg-gradient-to-r from-[#6BAEC9] to-[#A8D7E6] text-white font-semibold py-3 px-8 rounded-xl hover:from-[#5FA0B3] hover:to-[#91C8D9] transition-all"
+          >
+            🔍 Buscar
+          </button>
+        </form>
+
+        {/* Tabla de clientes */}
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100">
-            <h2 className="text-2xl font-bold">Clientes ({clientes.length})</h2>
+          <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-[#4A4A4A]">
+              Clientes ({clientes.length})
+            </h2>
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  fetchClientes(); // Restablecer lista completa
+                }}
+                className="text-sm px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition"
+              >
+                ✖ Limpiar búsqueda
+              </button>
+            )}
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="px-8 py-4 text-left text-sm font-semibold text-gray-900">Nombre</th>
-                  <th className="px-8 py-4 text-left text-sm font-semibold text-gray-900">Email</th>
-                  <th className="px-8 py-4 text-left text-sm font-semibold text-gray-900">Teléfono</th>
-                  <th className="px-8 py-4 text-right text-sm font-semibold text-gray-900">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clientes.map((cliente) => (
-                  <tr key={cliente._id} className="border-t hover:bg-gray-50">
-                    <td className="px-8 py-6 font-medium text-gray-900">{cliente.nombre}</td>
-                    <td className="px-8 py-6 text-gray-600">{cliente.email}</td>
-                    <td className="px-8 py-6 text-gray-600">{cliente.telefono}</td>
-                    <td className="px-8 py-6 text-right space-x-2">
-                      <button
-                        onClick={() => handleEdit(cliente)}
-                        className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDelete(cliente._id)}
-                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                      >
-                        Eliminar
-                      </button>
-                    </td>
+
+          {loading ? (
+            <p className="text-center py-12 text-gray-500">Cargando...</p>
+          ) : clientes.length === 0 ? (
+            <p className="text-center py-12 text-gray-500">
+              No se encontraron clientes.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-8 py-4 text-left text-sm font-semibold text-gray-900">
+                      Nombre
+                    </th>
+                    <th className="px-8 py-4 text-left text-sm font-semibold text-gray-900">
+                      Email
+                    </th>
+                    <th className="px-8 py-4 text-left text-sm font-semibold text-gray-900">
+                      Teléfono
+                    </th>
+                    <th className="px-8 py-4 text-right text-sm font-semibold text-gray-900">
+                      Acciones
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {clientes.map((cliente) => (
+                    <tr
+                      key={cliente._id}
+                      className="border-t hover:bg-gray-50 cursor-pointer"
+                      onClick={() =>
+                        router.push(`/admin/clientes/${cliente._id}`)
+                      }
+                    >
+                      <td className="px-8 py-6 font-medium text-gray-900">
+                        {cliente.nombre} {cliente.apellidos || ''}
+                      </td>
+                      <td className="px-8 py-6 text-gray-600">
+                        {cliente.email}
+                      </td>
+                      <td className="px-8 py-6 text-gray-600">
+                        {cliente.telefono || '—'}
+                      </td>
+                      <td className="px-8 py-6 text-right space-x-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/admin/clientes/${cliente._id}`);
+                          }}
+                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                        >
+                          Ver
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(cliente._id);
+                          }}
+                          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

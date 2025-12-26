@@ -48,10 +48,10 @@ export async function GET(req: NextRequest) {
 
     const productos = await Producto.find(filtro).populate("marca categoria");
 
-    console.log(
-      "Ejemplo producto poblado:",
-      JSON.stringify(productos[0], null, 2)
-    );
+    // console.log(
+    //   "Ejemplo producto poblado:",
+    //   JSON.stringify(productos[0], null, 2)
+    // );
 
     return NextResponse.json({ ok: true, productos }, { status: 200 });
   } catch (error: any) {

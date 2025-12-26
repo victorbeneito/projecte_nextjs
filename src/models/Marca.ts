@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const marcaSchema = new mongoose.Schema({
   nombre: { type: String, required: true },
@@ -6,4 +6,6 @@ const marcaSchema = new mongoose.Schema({
   logo_url: String
 });
 
-module.exports = mongoose.model('Marca', marcaSchema);
+const Marca = module.exports || mongoose.model('Marca', marcaSchema);
+
+export default Marca;

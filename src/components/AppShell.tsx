@@ -1,51 +1,87 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import clienteAxios from "@/lib/axiosClient";
+import { useState } from "react";
+
+type Categoria = {
+  _id: string;
+  nombre: string;
+};
 
 export default function AppShell({
   children,
+  categorias = [],
 }: {
   children: React.ReactNode;
+  categorias: Categoria[];
 }) {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [darkMode, setDarkMode] = useState(false);
 
-  useEffect(() => {
-    const cargarCategorias = async () => {
-      try {
-        
-        const { data } = await clienteAxios.get<any>("/categorias");
-        
-        if (data.ok) setCategories(data.categorias || []);
-      } catch (error) {
-        console.error("Error cargando categorías:", error);
-      }
-    };
-    cargarCategorias();
-  }, []); 
-
-  const handleSearch = (q: string) => setSearchQuery(q);
-
   return (
-    <div className={darkMode ? "dark min-h-screen bg-gray-100" : "min-h-screen bg-gray-100"}>
+    <div className={`min-h-screen flex flex-col ${darkMode ? "dark" : ""}`}>
       <Header />
       <Navbar
-        categories={categories}
-        searchQuery={searchQuery}
-        onSearch={handleSearch}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
+        categories={categorias}
       />
-      <main className="w-full py-8 px-4">{children}</main>
+      <main className="flex-1 bg-gray-100 dark:bg-darkBg">{children}</main>
       <Footer />
     </div>
   );
 }
+
+
+// "use client";
+
+// import React, { useEffect, useState } from "react";
+// import Header from "@/components/Header";
+// import Navbar from "@/components/Navbar";
+// import Footer from "@/components/Footer";
+// import clienteAxios from "@/lib/axiosClient";
+
+// export default function AppShell({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   const [categories, setCategories] = useState<any[]>([]);e
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [darkMode, setDarkMode] = useState(false);
+
+//   useEffect(() => {
+//     const cargarCategorias = async () => {
+//       try {
+        
+//         const { data } = await clienteAxios.get<any>("/categorias");
+        
+//         if (data.ok) setCategories(data.categorias || []);
+//       } catch (error) {
+//         console.error("Error cargando categorías:", error);
+//       }
+//     };
+//     cargarCategorias();
+//   }, []); 
+
+//   const handleSearch = (q: string) => setSearchQuery(q);
+
+//   return (
+//     <div className={darkMode ? "dark min-h-screen bg-gray-100" : "min-h-screen bg-gray-100"}>
+//       <Header />
+//       <Navbar
+//         categories={categories}
+//         searchQuery={searchQuery}
+//         onSearch={handleSearch}
+//         darkMode={darkMode}
+//         setDarkMode={setDarkMode}
+//       />
+//       <main className="w-full py-8 px-4">{children}</main>
+//       <Footer />
+//     </div>
+//   );
+// }
 
 
 // // src/app/(admin)/layout.tsx

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const varianteSchema = new mongoose.Schema({
   color: String,
@@ -21,5 +21,6 @@ const productoSchema = new mongoose.Schema({
   destacado: Boolean
 });
 
-module.exports = mongoose.model('Producto', productoSchema);
+const Producto = module.exports || mongoose.model('Producto', productoSchema);
 
+export default Producto;

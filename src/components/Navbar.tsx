@@ -1,8 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
+import { useClienteAuth } from "@/context/ClienteAuthContext";
+import { getCart } from "@/lib/cartService";
+import { FaShoppingCart } from "react-icons/fa";
 
 type Categoria = {
   _id: string;
@@ -12,7 +15,7 @@ type Categoria = {
 type NavbarProps = {
   darkMode: boolean;
   setDarkMode: (value: boolean) => void;
-  categories: any[];
+  categories: Categoria[];
   onSearch?: (text: string) => void;
   searchQuery?: string;
 };
@@ -24,17 +27,45 @@ export default function Navbar({
   onSearch,
   searchQuery = "",
 }: NavbarProps) {
+  const router = useRouter();
+  const { cliente, logout } = useClienteAuth();
+  const [cartCount, setCartCount] = useState(0);
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     onSearch?.(e.target.value);
   }
 
+  // 🧩 Calcular cantidad de productos del carrito
+  const actualizarContador = () => {
+    const cart = getCart();
+    const totalCantidad = cart.reduce((acc, item) => acc + item.cantidad, 0);
+    setCartCount(totalCantidad);
+  };
+
+  // 🧠 Escuchar cambios en tiempo real (storage event)
+  useEffect(() => {
+    actualizarContador(); // al cargar
+
+    const handleStorageChange = () => actualizarContador();
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
   return (
-    <nav className="flex justify-between items-center bg-terciary text-neutral text-stroke-2 text-stroke-black px-8 py-2 font-poppins dark:bg-darkNavBg dark:text-darkNavText transition-colors duration-300">
+    <nav className="flex justify-between items-center bg-terciary text-neutral px-8 py-2 font-poppins dark:bg-darkNavBg dark:text-darkNavText transition-colors duration-300">
+      {/* Sección izquierda - categorías */}
       <div className="flex space-x-6 overflow-x-auto">
         <Link href="/" className="hover:text-primary">
           Inicio
         </Link>
-        {categories.map((cat: Categoria) => (
+
+        {categories.map((cat) => (
           <Link
             key={cat._id}
             href={`/categorias/${cat._id}`}
@@ -45,7 +76,9 @@ export default function Navbar({
         ))}
       </div>
 
+      {/* Sección derecha - búsqueda, modo oscuro, usuario, carrito */}
       <div className="flex items-center space-x-4">
+        {/* Buscador */}
         <input
           type="text"
           placeholder="Buscar productos..."
@@ -54,24 +87,49 @@ export default function Navbar({
           className="px-3 py-1 rounded-md text-black"
         />
 
+        {/* Dark mode */}
         <button
           onClick={() => setDarkMode(!darkMode)}
           aria-label="Toggle Dark Mode"
-          className="bg-primary text-neutral rounded-full p-2 hover:bg-primaryHover transition-colors duration-300"
+          className="bg-primary text-white rounded-full p-2 hover:bg-primaryHover transition-colors duration-300"
         >
           {darkMode ? "🌞" : "🌙"}
         </button>
 
-        {/* <button className="bg-primary text-neutral px-4 py-2 rounded-base" disabled>
-          Iniciar sesión
-        </button> */}
-
-        <Link
-          href="/auth"
-          className="px-4 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primaryHover"
-        >
-          Iniciar sesión
+        {/* 🛒 Carrito con número de productos */}
+        <Link href="/carrito" className="relative">
+          <span className="text-2xl">🛒</span>
+          {cartCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {cartCount}
+            </span>
+          )}
         </Link>
+
+        {/* Usuario: saludo o login */}
+        {cliente ? (
+          <div className="flex items-center gap-3">
+            <Link
+              href="/account"
+              className="px-3 py-1 rounded-xl bg-primary text-white font-semibold hover:bg-primaryHover transition"
+            >
+              Hola, {cliente.nombre}
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+            >
+              Cerrar
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/auth"
+            className="px-4 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primaryHover transition"
+          >
+            Iniciar sesión
+          </Link>
+        )}
       </div>
     </nav>
   );
