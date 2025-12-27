@@ -123,7 +123,7 @@ export default function ConfirmacionPage() {
                 {cliente.direccion || "Dirección no indicada"}
               </p>
               <p className="text-sm text-gray-600">
-                {(cliente.cp || "CP no indicado") +
+                {(cliente.codigoPostal || "CP no indicado") +
                   " " +
                   (cliente.ciudad || "")}
               </p>

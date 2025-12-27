@@ -8,6 +8,7 @@
 
 export interface CartItem {
   _id: string;
+  id?: string; 
   nombre: string;
   precio: number;
   cantidad: number;

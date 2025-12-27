@@ -27,7 +27,7 @@ export default function CheckoutPage() {
     }
 
     if (!loading && cliente) {
-      if (!cliente.direccion || !cliente.ciudad || !cliente.cp) {
+      if (!cliente.direccion || !cliente.ciudad || !cliente.codigoPostal) {
         router.push("/direcciones?next=/checkout/envio");
         return;
       }
@@ -50,6 +50,11 @@ export default function CheckoutPage() {
 
   const aplicarCupon = async () => {
     try {
+
+    if (!token) {
+  toast.error("Debes iniciar sesión para aplicar un cupón");
+  return;
+}      
       const res = await fetchWithAuth("/api/coupons/validate", token, {
         method: "POST",
         body: JSON.stringify({ codigo }),
@@ -130,7 +135,7 @@ export default function CheckoutPage() {
             <p className="text-sm text-gray-800">{cliente.email}</p>
             <p className="text-sm text-gray-800">{cliente.direccion}</p>
             <p className="text-sm text-gray-800">
-              {cliente.cp} {cliente.ciudad}
+              {cliente.codigoPostal} {cliente.ciudad}
             </p>
             <button
               type="button"

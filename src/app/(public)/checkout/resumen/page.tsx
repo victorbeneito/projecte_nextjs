@@ -57,6 +57,11 @@ export default function ResumenPage() {
   // 🔹 Aplicar cupón de descuento
   const aplicarCupon = async () => {
     try {
+        if (!token) {
+  toast.error("Debes iniciar sesión para aplicar un cupón");
+  return;
+}
+
       const res = await fetchWithAuth("/api/coupons/validate", token, {
         method: "POST",
         body: JSON.stringify({ codigo }),
@@ -163,7 +168,7 @@ export default function ResumenPage() {
           {cliente.nombre} {cliente.apellidos}
         </p>
         <p>
-          {cliente.direccion}, {cliente.cp} {cliente.ciudad}
+          {cliente.direccion}, {cliente.codigoPostal} {cliente.ciudad}
         </p>
         <p className="text-sm text-gray-500 mt-1">
           Método:{" "}

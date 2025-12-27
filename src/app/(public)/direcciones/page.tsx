@@ -247,7 +247,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         ...cliente,
         direccion: form.direccion,
         ciudad: form.ciudad,
-        cp: form.codigoPostal,
+        codigoPostal: form.codigoPostal,
         telefono: form.telefono,
       });
     }

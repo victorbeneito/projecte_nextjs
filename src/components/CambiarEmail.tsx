@@ -22,7 +22,11 @@ export default function CambiarEmail() {
       });
 
       // si el servidor devuelve el cliente (puedes expandir eso luego)
-      if (res.email) setCliente((prev) => ({ ...prev, email: res.email }));
+    //   if (res.email) setCliente((prev) => ({ ...prev, email: res.email }));
+    if (res.email)
+  setCliente((prev) =>
+    prev ? { ...prev, email: res.email } : prev
+  );
 
       toast.success("Correo electrónico actualizado correctamente");
       setPassword("");
