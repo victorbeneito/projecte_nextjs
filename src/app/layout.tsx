@@ -1,6 +1,7 @@
 import "./globals.css";
 import AppShell from "@/components/AppShell";
 import { ClienteAuthProvider } from "@/context/ClienteAuthContext";
+import { AuthProvider } from "@/context/AuthContext"; // 👈 añade esto
 
 export const metadata = {
   title: "Mi aplicación",
@@ -8,30 +9,68 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // 🔹 1. Fetch directo a tu propia API
   let categorias: any[] = [];
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL ?? "http://localhost:3000"}/api/categorias`, {
-      next: { revalidate: 0 }, // Evita cachear en modo dev
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_URL ?? "http://localhost:3000"}/api/categorias`,
+      { next: { revalidate: 0 } }
+    );
     const data = await res.json();
     if (data.ok) categorias = data.categorias;
   } catch (err) {
     console.error("Error fetching categorías:", err);
   }
 
-  // 🔹 2. Retornar layout completo
   return (
     <html lang="es" suppressHydrationWarning>
       <body className="bg-fondo dark:bg-darkBg">
-        <ClienteAuthProvider>
-          <AppShell categorias={categorias}>{children}</AppShell>
-        </ClienteAuthProvider>
+        {/* 👇 ahora ambos contextos están disponibles en toda la app */}
+        <AuthProvider>
+          <ClienteAuthProvider>
+            <AppShell categorias={categorias}>{children}</AppShell>
+          </ClienteAuthProvider>
+        </AuthProvider>
       </body>
     </html>
   );
 }
+
+
+// import "./globals.css";
+// import AppShell from "@/components/AppShell";
+// import { ClienteAuthProvider } from "@/context/ClienteAuthContext";
+
+// export const metadata = {
+//   title: "Mi aplicación",
+//   description: "Proyecto Next.js",
+// };
+
+// export default async function RootLayout({ children }: { children: React.ReactNode }) {
+//   // 🔹 1. Fetch directo a tu propia API
+//   let categorias: any[] = [];
+
+//   try {
+//     const res = await fetch(`${process.env.NEXT_PUBLIC_URL ?? "http://localhost:3000"}/api/categorias`, {
+//       next: { revalidate: 0 }, // Evita cachear en modo dev
+//     });
+//     const data = await res.json();
+//     if (data.ok) categorias = data.categorias;
+//   } catch (err) {
+//     console.error("Error fetching categorías:", err);
+//   }
+
+//   // 🔹 2. Retornar layout completo
+//   return (
+//     <html lang="es" suppressHydrationWarning>
+//       <body className="bg-fondo dark:bg-darkBg">
+//         <ClienteAuthProvider>
+//           <AppShell categorias={categorias}>{children}</AppShell>
+//         </ClienteAuthProvider>
+//       </body>
+//     </html>
+//   );
+// }
 
 
 

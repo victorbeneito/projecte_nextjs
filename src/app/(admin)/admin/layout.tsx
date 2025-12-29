@@ -1,27 +1,24 @@
-"use client";
-export const dynamic = "force-dynamic";
+'use client';
+export const dynamic = 'force-dynamic';
 
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { AuthProvider } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // evita ejecución durante el SSR (build)
-  if (typeof window === "undefined") {
-    return null;
-  }
+  // 🧩 Evita ejecución durante el build (SSR)
+  if (typeof window === 'undefined') return null;
 
   const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
-      router.replace("/login");
-    }
+    if (!user) router.replace('/login');
   }, [user, router]);
 
   if (!user) {
@@ -29,11 +26,51 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <main className="max-w-screen-2xl mx-auto py-8 px-4">{children}</main>
-    </div>
+    <AuthProvider>
+      <div className="min-h-screen bg-gray-100">
+        <main className="max-w-screen-2xl mx-auto py-8 px-4">{children}</main>
+      </div>
+    </AuthProvider>
   );
 }
+
+
+// "use client";
+// export const dynamic = "force-dynamic";
+
+// import { useAuth } from "@/context/AuthContext";
+// import { useRouter } from "next/navigation";
+// import { useEffect } from "react";
+
+// export default function AdminLayout({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   // evita ejecución durante el SSR (build)
+//   if (typeof window === "undefined") {
+//     return null;
+//   }
+
+//   const { user } = useAuth();
+//   const router = useRouter();
+
+//   useEffect(() => {
+//     if (!user) {
+//       router.replace("/login");
+//     }
+//   }, [user, router]);
+
+//   if (!user) {
+//     return <div className="p-8">Redirigiendo al login...</div>;
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gray-100">
+//       <main className="max-w-screen-2xl mx-auto py-8 px-4">{children}</main>
+//     </div>
+//   );
+// }
 
 
 // // src/app/(admin)/layout.tsx
