@@ -15,7 +15,7 @@ export default function AppShell({
   categorias = [],
 }: {
   children: React.ReactNode;
-  categorias: Categoria[];
+  categorias?: Categoria[];
 }) {
   const [darkMode, setDarkMode] = useState(false);
 

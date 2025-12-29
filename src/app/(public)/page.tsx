@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+
 import React, { useState, useEffect } from "react";
 import Banner from "@/components/Banner";
 import ProductGrid from "@/components/ProductGrid";
