@@ -24,7 +24,7 @@ export default function AdminLayout({
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
     if (!token) {
-      router.replace("/admin/login");
+      router.replace("/admin-login");
       return;
     }
 

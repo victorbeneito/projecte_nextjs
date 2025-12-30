@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Token requerido' }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.SECRETO_JWT!) as any;
+    const decoded = jwt.verify(token, process.env._CLIENTE!) as any;
 
     const cliente = await Cliente.findById(decoded.id).select(
       'nombre apellidos email telefono empresa direccion direccionComplementaria codigoPostal ciudad pais provincia nif'
@@ -59,7 +59,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Token requerido' }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.SECRETO_JWT!) as any;
+    const decoded = jwt.verify(token, process.env.SECRETO_JWT_CLIENTE!) as any;
     const body = await req.json();
 
     const update = {

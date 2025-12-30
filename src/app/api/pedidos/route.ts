@@ -73,7 +73,7 @@ export async function GET(req: Request) {
         : { "cliente.email": clienteParam };
     } else if (token) {
       // 🔑 Si viene del token JWT
-      const decoded: any = jwt.verify(token, process.env.SECRETO_JWT!);
+      const decoded: any = jwt.verify(token, process.env.SECRETO_JWT_CLIENTE!);
       if (decoded?.id && mongoose.Types.ObjectId.isValid(decoded.id)) {
         filtro.clienteId = new mongoose.Types.ObjectId(decoded.id);
       } else if (decoded?.email) {

@@ -12,7 +12,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Token requerido" }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.SECRETO_JWT!);
+    const decoded = jwt.verify(token, process.env.SECRETO_JWT_CLIENTE!);
     if (typeof decoded === "string" || decoded.id !== params.id) {
       return NextResponse.json({ error: "Acceso no autorizado" }, { status: 403 });
     }
@@ -46,7 +46,7 @@ export async function PUT( req: Request, context: { params: Promise<{ id: string
       return NextResponse.json({ error: "Token requerido" }, { status: 401 });
     }
 
-    const decoded: any = jwt.verify(token, process.env.SECRETO_JWT!);
+    const decoded: any = jwt.verify(token, process.env.SECRETO_JWT_CLIENTE!);
     console.log("decoded.id =>", decoded.id, " | id =>", id);
 
     if (typeof decoded === "string" || decoded.id !== id) {
@@ -89,7 +89,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ error: "Token requerido" }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.SECRETO_JWT!);
+    const decoded = jwt.verify(token, process.env.SECRETO_JWT_CLIENTE!);
     if (typeof decoded === "string" || decoded.id !== params.id) {
       return NextResponse.json({ error: "Acceso no autorizado" }, { status: 403 });
     }

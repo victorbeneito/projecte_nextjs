@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Token requerido" }, { status: 401 });
     }
 
-    const decoded: any = jwt.verify(token, process.env.SECRETO_JWT!);
+    const decoded: any = jwt.verify(token, process.env.SECRETO_JWT_CLIENTE!);
     if (typeof decoded === "string" || !decoded.id) {
       return NextResponse.json({ error: "Token inválido" }, { status: 403 });
     }

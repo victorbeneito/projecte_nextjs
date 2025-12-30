@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useClienteAuth } from "@/context/ClienteAuthContext";
 import AccountSidebar from "@/components/AccountSidebar";
+import AppShell from "@/components/AppShell";
+
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const { cliente, loading } = useClienteAuth();
@@ -27,9 +29,12 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
 
   /* Solo estructura del panel, sin Header/Footer */
   return (
+  <AppShell>
     <div className="flex min-h-screen bg-gray-50">
       <AccountSidebar />
       <main className="flex-1 p-8">{children}</main>
     </div>
-  );
+  </AppShell>
+);
+
 }

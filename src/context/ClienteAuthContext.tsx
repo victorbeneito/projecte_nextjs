@@ -49,18 +49,33 @@ export function ClienteAuthProvider({ children }: { children: ReactNode }) {
   };
 
   // 🔹 Cargar cliente y token del almacenamiento local
-  useEffect(() => {
-    const storedToken = localStorage.getItem("cliente_token");
-    const storedCliente = localStorage.getItem("cliente_datos");
+  // 🔹 Cargar cliente y token del almacenamiento local
+useEffect(() => {
+  const loadCliente = async () => {
+    try {
+      const storedToken = localStorage.getItem("cliente_token");
+      const storedCliente = localStorage.getItem("cliente_datos");
 
-    if (storedToken && storedCliente) {
-      setToken(storedToken);
-      const parsed = JSON.parse(storedCliente);
-      setCliente(normalizeCliente(parsed));
+      if (storedToken && storedCliente) {
+        // Guarda el token en estado
+        setToken(storedToken);
+        const parsed = JSON.parse(storedCliente);
+        setCliente(normalizeCliente(parsed));
+      } else {
+        setCliente(null);
+      }
+    } catch (err) {
+      console.error("❌ Error cargando cliente del storage:", err);
+      setCliente(null);
+      setToken(null);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setLoading(false);
-  }, []);
+  loadCliente();
+}, []);
+
 
   // 🔹 Login y guardado del cliente normalizado
   const login = (clienteData: Cliente, newToken: string) => {

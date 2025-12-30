@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
 
     const token = jwt.sign(
       { id: cliente._id, email: cliente.email, role: cliente.role || "cliente" },
-      process.env.SECRETO_JWT!,
+      process.env.SECRETO_JWT_CLIENTE!,
       { expiresIn: "24h" }
     );
 
@@ -166,7 +166,7 @@ export async function PUT(req: NextRequest) {
 
     const token = jwt.sign(
       { id: cliente._id, email: cliente.email, role: "cliente" },
-      process.env.SECRETO_JWT!,
+      process.env.SECRETO_JWT_CLIENTE!,
       { expiresIn: "24h" }
     );
 
@@ -221,7 +221,7 @@ if (cliente) {
 
     const token = jwt.sign(
       { id: cliente._id, email: cliente.email, role: cliente.role },
-      process.env.SECRETO_JWT!,
+      process.env.SECRETO_JWT_CLIENTE!,
       { expiresIn: "24h" }
     );
 

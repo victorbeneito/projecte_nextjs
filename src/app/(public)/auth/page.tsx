@@ -56,15 +56,15 @@ const handleSubmit = async (e: React.FormEvent) => {
 
     // ✅ Guarda en contexto + localStorage (cliente completo + token)
     login(data.cliente, data.token);
-
+    router.push("/account");
     // 🔄 Redirecciones
     const params = new URLSearchParams(window.location.search);
     const redirectTo = params.get("redirect");
 
     if (esRegistro) {
-      router.push(redirectTo || "/");
+      router.push(redirectTo || "/account");
     } else {
-      router.push(redirectTo || "/productos");
+      router.push(redirectTo || "/account");
     }
 
   } catch (err: any) {
